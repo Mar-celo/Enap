@@ -1,7 +1,7 @@
 library(tidyverse)
 glimpse(mes0619)
 str(mes0619)
-
+ 
 dados <- mes0619 %>% filter(!is.na(Tipo_Regiao), !is.na(Desc_Renda_Bruta))
 write.csv2(dados, "dados.csv")
 
