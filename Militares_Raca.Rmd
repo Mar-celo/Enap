@@ -1,0 +1,124 @@
+---
+title: "Militares por Raça"
+author: "Marcelo Ribeiro"
+date: "08/12/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r knitr_init, echo=FALSE}
+
+
+library(knitr)
+library(rmdformats)
+library(tidyverse)
+library(knitr)
+library(readxl)
+library(lubridate)
+library(rpivotTable)
+library(data.table)
+library(abind, pos=38)
+library(e1071, pos=39)
+library(car)
+library(RcmdrMisc)
+library(survival)
+library(ggfortify)
+library(ggplot2)
+library(ROCR)
+```
+
+
+## R Markdown
+
+Leitura dos dados
+
+```{r Dados}
+militares <- read.csv2("militares.csv")
+```
+
+Estatísticas descritivas
+
+```{r pressure, echo=FALSE}
+summary(militares) 
+```
+
+Tabelas de contigências e teste qui quadrado para verificar associaçoes entre as variaveis
+
+```{r}
+local({
+    .Table <- with(militares, table(POSTO_GRADUACAO))
+    cat("\ncounts:\n")
+    print(.Table)
+    cat("\npercentages:\n")
+    print(round(100 * .Table/sum(.Table), 2))
+})
+local({
+    .Table <- with(militares, table(QUADRO))
+    cat("\ncounts:\n")
+    print(.Table)
+    cat("\npercentages:\n")
+    print(round(100 * .Table/sum(.Table), 2))
+})
+local({
+    .Table <- with(militares, table(RACA))
+    cat("\ncounts:\n")
+    print(.Table)
+    cat("\npercentages:\n")
+    print(round(100 * .Table/sum(.Table), 2))
+})
+```
+
+
+
+```{r}
+local({
+    .Table <- xtabs(~POSTO_GRADUACAO + RACA, data = militares)
+    cat("\nFrequency table:\n")
+    print(.Table)
+    cat("\nTotal percentages:\n")
+    print(totPercents(.Table))
+    .Test <- chisq.test(.Table, correct = FALSE)
+    print(.Test)
+})
+```
+
+```{r}
+local({
+    .Table <- xtabs(~QUADRO + RACA, data = militares)
+    cat("\nFrequency table:\n")
+    print(.Table)
+    cat("\nTotal percentages:\n")
+    print(totPercents(.Table))
+    .Test <- chisq.test(.Table, correct = FALSE)
+    print(.Test)
+})
+```
+
+```{r}
+.df <- data.frame(x = militares$RACA, s = militares$POSTO_GRADUACAO)
+.df <- as.data.frame(with(.df, prop.table(table(x, s), margin = 2)))
+.plot <- ggplot(data = .df, aes(x = x, y = Freq)) + geom_bar(width = 0.9, stat = "identity") + 
+    scale_y_continuous(expand = c(0.01, 0), labels = scales::percent_format()) + 
+    facet_wrap(~s) + xlab("RACA") + ylab("Percent") + theme_grey(base_size = 6, base_family = "sans") + 
+    theme(panel.spacing = unit(0.3, "lines"))
+print(.plot)
+rm(.df, .plot)
+```
+
+#```{r}
+require("ggplot2")
+.df <- data.frame(x = militares$QUADRO, z = militares$RACA, s = militares$POSTO_GRADUACAO)
+.df <- as.data.frame(with(.df, prop.table(table(x, z, s), margin = 3)))
+.plot <- ggplot(data = .df, aes(x = x, y = Freq, fill = z)) + geom_bar(width = 0.9, 
+    position = "fill", stat = "identity") + scale_fill_brewer(palette = "Blues") + 
+    scale_y_continuous(expand = c(0.01, 0), labels = scales::percent_format()) + 
+    facet_wrap(~s) + xlab("QUADRO") + ylab("Percent") + labs(fill = "RACA") + theme_grey(base_size = 6, 
+    base_family = "sans") + theme(panel.spacing = unit(0.3, "lines"), legend.position = "right")
+print(.plot)
+rm(.df, .plot)
+```

@@ -1,0 +1,65 @@
+---
+title: "Diagnóstico Sobre a Aposentadoria no Serviço Público"
+subtitle: "Aplicação de Regressão Logística"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+      rmdformats::readthedown:
+        highlight: tango
+---
+```{r knitr_init, cache=FALSE, message=FALSE, warning=FALSE, prompt=FALSE,      tidy=TRUE, comment=NA}
+library(knitr)
+library(rmdformats)
+library(tidyverse)
+library(knitr)
+library(readxl)
+library(lubridate)
+library(rpivotTable)
+library(data.table)
+library(abind, pos=38)
+library(e1071, pos=39)
+library(Rcmdr)
+library(car)
+library(RcmdrMisc)
+library(survival)
+library(ggfortify)
+library(ggplot2)
+
+
+
+```
+
+## Introdução
+
+No serviço público é comum que alguns servidores não aposentam na data em que começa a ter o direito a aposentadoria e permanecem no trabalho até o tempo da idade compulsória recebendo um abono. Dessa forma, o objetivo do estudo consiste na exploração da teoria de análise de regressão logística para delinear o perfil dos servidores que adquirem o direito ao abono salarial e decidem se continuam trabalhando = 0 ou não = 1, situação que  será a variável resposta de interesse neste caso.
+
+
+## Base de Dados
+Para subsidiar este estudo, foram coletadas informações do Data Warehouse do Sistema Integrado de Administração de Pessoal - DW SIAPE dos servidores públicos do Ministério da Economia - ME, ativos e inativos no período de janeiro de 2019 a julho de 2019.
+
+As informações extraídas foram:
+
+• Nome • Sexo • CPF (chave primária) • Matricula SIAPE • CLASSE_CARGO • PADRAO_CARGO • SITUACAO_VINCULO • REGIME_JURIDICO • JORNADA_DE_TRABALHO • Remuneração • Ano/Mês inicial do abono de permanência • Valor Abono (caso tenha) • Todas as gratificações e funções comissionadas • Funções – VPNI • Quantidade de dependentes • Descrição do cargo emprego • Nível de Escolaridade • Denominação do órgão de atuação • UF da UPAG de vinculação • Denominação unidade organizacional • ORGSUP_EXERCICIO • UF da Residência • Cidade da residência • Situação servidor • Tipo DE Aposentadoria • Data ingresso no serviço público • Data de nascimento • DATA ocorrência inatividade
+
+
+### Descritivas dos dados
+
+Inicialmente, selecionou-se o último mês desta base de dados, junho de 2019, e buscou os tempos iniciais para o estudo, ou seja, a data de início do abono e, para os casos da ocorrência do evento de aposentadorias, buscou-se a data deste fato. 
+
+```{r}
+
+mes0619 <- read.csv2("dados.csv")
+mes0619 %>% kable()
+
+```
+
+
+```{r}
+summary(mes0619) %>% kable()
+
+```
+
+
+
+
+
